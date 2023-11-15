@@ -146,6 +146,7 @@ RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
 		apk-cron \
 	;
+RUN docker-php-ext-install gd
 
 COPY docker/cron/crontab /etc/crontabs/root
 COPY docker/cron/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
@@ -169,3 +170,5 @@ RUN chmod +x /usr/local/bin/docker-entrypoint
 RUN composer dump-autoload --classmap-authoritative
 
 ENTRYPOINT ["docker-entrypoint"]
+
+

@@ -1,0 +1,69 @@
+{
+    "name": "sylius/shop-bundle",
+    "type": "symfony-bundle",
+    "description": "Sylius eCommerce storefront.",
+    "keywords": [
+        "shop",
+        "ecommerce",
+        "store",
+        "webshop",
+        "sylius"
+    ],
+    "homepage": "https://sylius.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Paweł Jędrzejewski",
+            "homepage": "https://pjedrzejewski.com"
+        },
+        {
+            "name": "Sylius project",
+            "homepage": "https://sylius.com"
+        },
+        {
+            "name": "Community contributions",
+            "homepage": "https://github.com/Sylius/Sylius/contributors"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "sylius/core-bundle": "^1.12",
+        "sylius/ui-bundle": "^1.12",
+        "symfony/framework-bundle": "^5.4 || ^6.0",
+        "symfony/security-bundle": "^5.4 || ^6.0",
+        "symfony/webpack-encore-bundle": "^1.15",
+        "twig/intl-extra": "^2.12 || ^3.4",
+        "twig/twig": "^2.12 || ^3.3"
+    },
+    "require-dev": {
+        "matthiasnoback/symfony-config-test": "^4.2",
+        "matthiasnoback/symfony-dependency-injection-test": "^4.2",
+        "mockery/mockery": "^1.4",
+        "phpspec/phpspec": "^7.2",
+        "phpunit/phpunit": "^8.5",
+        "symfony/dependency-injection": "^5.4 || ^6.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.12-dev"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Sylius\\Bundle\\ShopBundle\\": ""
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../*/*"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

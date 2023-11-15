@@ -1,0 +1,53 @@
+<?php
+namespace Payum\Core\Tests\Model;
+
+use Payum\Core\Model\Identity;
+use Payum\Core\Storage\IdentityInterface;
+use PHPUnit\Framework\TestCase;
+
+class IdentityTest extends TestCase
+{
+    /**
+     * @test
+     */
+    public function shouldImplementIdentityInterface()
+    {
+        $rc = new \ReflectionClass(Identity::class);
+
+        $this->assertTrue($rc->implementsInterface(IdentityInterface::class));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldAllowGetIdSetInConstructor()
+    {
+        $id = new Identity('theId', new \stdClass());
+
+        $this->assertEquals('theId', $id->getId());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldAllowGetClassSetInConstructor()
+    {
+        $id = new Identity('theId', new \stdClass());
+
+        $this->assertEquals('stdClass', $id->getClass());
+    }
+
+    /**
+     * @test
+     */
+    public function shouldBeCorrectlySerializedAndUnserialized()
+    {
+        $id = new Identity('theId', new \stdClass());
+
+        $serializedId = serialize($id);
+
+        $unserializedId = unserialize($serializedId);
+
+        $this->assertEquals($id, $unserializedId);
+    }
+}

@@ -1,0 +1,20 @@
+imports:
+    - { resource: "sylius/resources.yaml" }
+
+parameters:
+    locale: en_US
+    secret: "Three can keep a secret, if two of them are dead."
+    database_url: "sqlite:///%kernel.project_dir%/config/db.sql"
+
+services:
+    app.english_books_query_builder:
+        class: App\QueryBuilder\EnglishBooksQueryBuilder
+        arguments:
+            - '@app.repository.book'
+        public: true
+
+    app.authors_with_books_query_builder:
+        class: App\QueryBuilder\AuthorsWithBooksQueryBuilder
+        arguments:
+            - '@app.repository.author'
+        public: true

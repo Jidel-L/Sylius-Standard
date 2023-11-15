@@ -1,0 +1,94 @@
+name: Build
+
+on:
+    push: ~
+    pull_request: ~
+    release:
+        types: [created]
+    schedule:
+        -
+            cron: "0 1 * * 6" # Run at 1am every Saturday
+    workflow_dispatch: ~
+
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        name: "PHP ${{ matrix.php }}, Symfony ${{ matrix.symfony }}, Twig ${{ matrix.twig }}"
+        strategy:
+            fail-fast: false
+            matrix:
+                php: ["8.0", "8.1"]
+                symfony: ["5.4.*", "6.0.*", "6.1.*"]
+                twig: ["^2.12", "^3.3"]
+                exclude:
+                    - php: "8.0"
+                      symfony: "6.1.*"
+
+        steps:
+            -
+                uses: actions/checkout@v2
+
+            -
+                name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: "${{ matrix.php }}"
+                    coverage: none
+
+            -
+                name: Restrict Symfony version
+                if: matrix.symfony != ''
+                run: |
+                    composer global config --no-plugins allow-plugins.symfony/flex true
+                    composer global require --no-progress --no-scripts --no-plugins "symfony/flex:^1.10"
+                    composer config extra.symfony.require "${{ matrix.symfony }}"
+                    (cd src/Component && composer config extra.symfony.require "${{ matrix.symfony }}")
+
+            -
+                name: Restrict Twig version
+                if: matrix.twig != ''
+                run: |
+                    composer require "twig/twig:${{ matrix.twig }}" --no-update --no-scripts
+
+            -
+                name: Install dependencies
+                run: |
+                    composer update ${{ matrix.composer-flags }} --no-scripts
+                    (cd src/Component && composer update ${{ matrix.composer-flags }} --no-scripts)
+
+            -
+                name: Run analysis with Symfony 5
+                if: matrix.symfony == '5.4.*'
+                run: |
+                    composer analyse-symfony5
+                    (cd src/Component && composer validate --strict)
+
+            -
+                name: Run analysis with Symfony 6
+                if: matrix.symfony != '5.4.*'
+                run: |
+                    composer analyse
+                    (cd src/Component && composer validate --strict)
+
+            -
+                name: Run component tests
+                run: (cd src/Component && vendor/bin/phpspec run)
+
+            -
+                name: Run PHPSpec tests
+                run: vendor/bin/phpspec run
+
+            -
+                name: Test bundle (with all services)
+                run: |
+                    rm -rf src/Bundle/test/var/cache
+                    composer require symfony/mailer --no-scripts
+                    (cd src/Bundle/test && APP_ENV=test bin/console lint:container)
+                    vendor/bin/phpunit
+
+            -
+                name: Run lint container (with no mailers)
+                run: |
+                    rm -rf src/Bundle/test/var/cache
+                    composer remove symfony/mailer --no-scripts
+                    (cd src/Bundle/test && APP_ENV=test_no_mailers bin/console lint:container)

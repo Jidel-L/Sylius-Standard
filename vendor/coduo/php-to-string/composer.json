@@ -1,0 +1,57 @@
+{
+    "name": "coduo/php-to-string",
+    "type": "library",
+    "description": "Simple library that converts PHP value into strings",
+    "keywords": ["string", "php", "to string", "to"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michał Dąbrowski",
+            "email": "dabrowski@brillante.pl"
+        },
+        {
+            "name": "Norbert Orzechowicz",
+            "email": "norbert@orzechowicz.pl"
+        }
+    ],
+    "require": {
+        "php": ">=7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Coduo\\ToString\\" : "src/Coduo/ToString"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Coduo\\ToString\\": "tests/Coduo/ToString"
+        }
+    },
+    "suggest": {
+        "ext-intl": "Required if you are going to use humanizer with locales different than en_EN"
+    },
+    "scripts": {
+        "build": [
+            "@static:analyze",
+            "@test"
+        ],
+        "cs:php:fix": [
+            "tools/vendor/bin/php-cs-fixer fix --using-cache=no"
+        ],
+        "test" : [
+            "tools/vendor/bin/phpunit"
+        ],
+        "static:analyze": [
+            "tools/vendor/bin/php-cs-fixer fix --dry-run"
+        ],
+        "post-install-cmd": [
+            "@tools:install"
+        ],
+        "post-update-cmd": [
+            "@tools:install"
+        ],
+        "tools:install": [
+            "composer install --working-dir=./tools"
+        ]
+    }
+}

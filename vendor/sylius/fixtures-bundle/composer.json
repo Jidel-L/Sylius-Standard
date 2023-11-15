@@ -1,0 +1,81 @@
+{
+    "name": "sylius/fixtures-bundle",
+    "type": "symfony-bundle",
+    "description": "Configurable fixtures for Symfony applications.",
+    "keywords": [
+        "sylius",
+        "fixtures",
+        "symfony"
+    ],
+    "homepage": "https://sylius.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kamil Kokot",
+            "homepage": "https://kamilkokot.com"
+        },
+        {
+            "name": "Sylius project",
+            "homepage": "https://sylius.com"
+        },
+        {
+            "name": "Community contributions",
+            "homepage": "https://github.com/Sylius/Sylius/contributors"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "doctrine/data-fixtures": "^1.2",
+        "monolog/monolog": "^1.25 || ^2.1",
+        "symfony/framework-bundle": "^5.4 || ^6.0",
+        "symfony/monolog-bridge": "^5.4 || ^6.0",
+        "webmozart/assert": "^1.9"
+    },
+    "require-dev": {
+        "doctrine/doctrine-bundle": "^2.1",
+        "doctrine/orm": "^2.7",
+        "matthiasnoback/symfony-config-test": "^4.2",
+        "matthiasnoback/symfony-dependency-injection-test": "^4.2",
+        "phpspec/phpspec": "^7.0",
+        "phpunit/phpunit": "^9.4",
+        "sylius-labs/coding-standard": "^4.0",
+        "vimeo/psalm": "^4.23",
+        "rector/rector": "^0.14.5"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.8-dev"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Sylius\\Bundle\\FixturesBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "spec\\Sylius\\Bundle\\FixturesBundle\\": "spec/",
+            "Sylius\\Bundle\\FixturesBundle\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "analyse": [
+            "@composer validate --strict",
+            "vendor/bin/ecs check spec src tests",
+            "vendor/bin/psalm"
+        ],
+        "fix": [
+            "vendor/bin/ecs check spec src tests --fix"
+        ],
+        "test": [
+            "vendor/bin/phpspec run --ansi --no-interaction",
+            "vendor/bin/phpunit --colors=always"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true,
+            "dealerdirect/phpcodesniffer-composer-installer": false
+        }
+    }
+}

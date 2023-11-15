@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+
+ This file is part of the Sylius package.
+
+ (c) Paweł Jędrzejewski
+
+ For the full copyright and license information, please view the LICENSE
+ file that was distributed with this source code.
+
+-->
+
+<container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <defaults public="true" />
+
+        <service id="Sylius\Bundle\ResourceBundle\Routing\ResourceLoader" public="false">
+            <argument type="service" id="sylius.resource_registry" />
+            <argument type="service">
+                <service class="Sylius\Bundle\ResourceBundle\Routing\RouteFactory" />
+            </argument>
+            <tag name="routing.loader" />
+        </service>
+        <service id="sylius.routing.loader.resource" alias="Sylius\Bundle\ResourceBundle\Routing\ResourceLoader" public="false" />
+
+        <service id="sylius.routing.loader.crud_routes_attributes" class="Sylius\Bundle\ResourceBundle\Routing\CrudRoutesAttributesLoader" public="false">
+            <argument>%sylius.resource.mapping%</argument>
+            <argument type="service" id="sylius.routing.loader.resource" />
+            <tag name="routing.route_loader" />
+        </service>
+        <service id="Sylius\Bundle\ResourceBundle\Routing\CrudRoutesAttributesLoader" alias="sylius.routing.loader.crud_routes_attributes" public="false" />
+
+        <service id="sylius.routing.loader.routes_attributes" class="Sylius\Bundle\ResourceBundle\Routing\RoutesAttributesLoader" public="false">
+            <argument>%sylius.resource.mapping%</argument>
+            <argument type="service" id="sylius.routing.factory.route_attributes" />
+            <tag name="routing.route_loader" />
+        </service>
+        <service id="Sylius\Bundle\ResourceBundle\Routing\RoutesAttributesLoader" alias="sylius.routing.loader.routes_attributes" public="false" />
+
+        <service id="sylius.routing.factory.route_attributes" class="Sylius\Bundle\ResourceBundle\Routing\RouteAttributesFactory" public="false" />
+        <service id="Sylius\Bundle\ResourceBundle\Routing\RouteAttributesFactoryInterface" alias="sylius.routing.factory.route_attributes" />
+    </services>
+</container>

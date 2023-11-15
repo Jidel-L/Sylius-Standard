@@ -4,13 +4,11 @@ services:
     build:
       context: .
       target: sylius_php_dev
-    depends_on:
-      - migrations
     environment:
       - APP_ENV=dev
-      - APP_DEBUG=1
+      - APP_DEBUG=0
       - APP_SECRET=EDITME
-      - DATABASE_URL=mysql://sylius:${MYSQL_PASSWORD:-nopassword}@mysql/sylius
+      - DATABASE_URL=mysql://sylius:SLyPJLaye7@mysql/sylius_prod
       - MAILER_DSN=smtp://mailhog:1025
       - PHP_DATE_TIMEZONE=${PHP_DATE_TIMEZONE:-UTC}
     volumes:
@@ -22,34 +20,19 @@ services:
       # - ./public/media:/srv/sylius/public/media:rw
       - public-media:/srv/sylius/public/media:rw
 
-  migrations:
-    container_name: migrations
-    build:
-      context: .
-      target: sylius_migrations_dev
-    depends_on:
-      - mysql
-    environment:
-      - APP_ENV=dev
-      - APP_DEBUG=1
-      - APP_SECRET=EDITME
-      - DATABASE_URL=mysql://sylius:${MYSQL_PASSWORD:-nopassword}@mysql/sylius
-      - LOAD_FIXTURES=1
-      - PHP_DATE_TIMEZONE=${PHP_DATE_TIMEZONE:-UTC}
-
   mysql:
     container_name: mysql
     image: mysql:5.7 # Sylius is fully working on mysql 8.0 version
     platform: linux/amd64
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-nopassword}
-      - MYSQL_DATABASE=sylius
+      - MYSQL_ROOT_PASSWORD=sylius
+      - MYSQL_DATABASE=sylius_prod
       - MYSQL_USER=sylius
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-nopassword}
+      - MYSQL_PASSWORD=SLyPJLaye7
     volumes:
-      - mysql-data:/var/lib/mysql:rw
+      # - mysql-data:/var/lib/mysql:rw
       # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/mysql/data:/var/lib/mysql:rw,delegated
+      - ./docker/mysql/data:/var/lib/mysql:rw,delegated
     ports:
       - "${MYSQL_PORT:-3306}:3306"
     cap_add:

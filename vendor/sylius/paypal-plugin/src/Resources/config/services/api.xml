@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="sylius.pay_pal.request_trials_limit">5</parameter>
+        <parameter key="sylius.paypal.logging_level_increased">true</parameter>
+    </parameters>
+    <services>
+        <service
+            id="Sylius\PayPalPlugin\Client\PayPalClientInterface"
+            class="Sylius\PayPalPlugin\Client\PayPalClient"
+        >
+            <argument type="service" id="sylius.http_client" />
+            <argument type="service" id="monolog.logger.paypal" />
+            <argument type="service" id="Sylius\PayPalPlugin\Provider\UuidProviderInterface" />
+            <argument type="service" id="Sylius\PayPalPlugin\Provider\PayPalConfigurationProviderInterface" />
+            <argument type="service" id="sylius.context.channel" />
+            <argument>%sylius.pay_pal.api_base_url%</argument>
+            <argument>%sylius.pay_pal.request_trials_limit%</argument>
+            <argument>%sylius.paypal.logging.increased%</argument>
+        </service>
+
+        <service
+            id="Sylius\PayPalPlugin\Api\AuthorizeClientApiInterface"
+            class="Sylius\PayPalPlugin\Api\AuthorizeClientApi"
+        >
+            <argument type="service" id="Sylius\PayPalPlugin\Client\PayPalClientInterface" />
+        </service>
+
+        <service
+            id="sylius_pay_pal_plugin.repository.pay_pal_credentials"
+            class="Doctrine\ORM\EntityRepository"
+        >
+            <factory service="doctrine.orm.entity_manager" method="getRepository"/>
+            <argument>Sylius\PayPalPlugin\Entity\PayPalCredentials</argument>
+        </service>
+
+        <service
+            id="Sylius\PayPalPlugin\Api\CacheAuthorizeClientApiInterface"
+            class="Sylius\PayPalPlugin\Api\CacheAuthorizeClientApi"
+        >
+            <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="sylius_pay_pal_plugin.repository.pay_pal_credentials" />
+            <argument type="service" id="Sylius\PayPalPlugin\Api\AuthorizeClientApiInterface" />
+            <argument type="service" id="Sylius\PayPalPlugin\Provider\UuidProviderInterface" />
+        </service>
+
+        <service
+            id="Sylius\PayPalPlugin\Api\CompleteOrderApiInterface"
+            class="Sylius\PayPalPlugin\Api\CompleteOrderApi"
+        >
+            <argument type="service" id="Sylius\PayPalPlugin\Client\PayPalClientInterface" />
+        </service>
+
+        <service
+            id="Sylius\PayPalPlugin\Api\GenericApiInterface"
+            class="Sylius\PayPalPlugin\Api\GenericApi"
+        >
+            <argument type="service" id="sylius.http_client" />
+        </service>
+
+        <service
+            id="Sylius\PayPalPlugin\Api\CreateOrderApiInterface"
+            class="Sylius\PayPalPlugin\Api\CreateOrderApi"
+        >
+            <argument type="service" id="Sylius\PayPalPlugin\Client\PayPalClientInterface" />
+            <argument type="service" id="Sylius\PayPalPlugin\Provider\PaymentReferenceNumberProviderInterface" />
+            <argument type="service" id="Sylius\PayPalPlugin\Provider\PayPalItemDataProviderInterface" />
+        </service>
+
+        <service
+            id="Sylius\PayPalPlugin\Api\IdentityApiInterface"
+            class="Sylius\PayPalPlugin\Api\IdentityApi"
+        >
+            <argument type="service" id="Sylius\PayPalPlugin\Client\PayPalClientInterface" />
+        </service>
+
+        <service
+            id="Sylius\PayPalPlugin\Api\OrderDetailsApiInterface"
+            class="Sylius\PayPalPlugin\Api\OrderDetailsApi"
+        >
+            <argument type="service" id="Sylius\PayPalPlugin\Client\PayPalClientInterface" />
+        </service>
+
+        <service
+            id="Sylius\PayPalPlugin\Api\WebhookApiInterface"
+            class="Sylius\PayPalPlugin\Api\WebhookApi"
+        >
+            <argument type="service" id="sylius.http_client" />
+            <argument>%sylius.pay_pal.api_base_url%</argument>
+        </service>
+
+        <service
+            id="Sylius\PayPalPlugin\Api\UpdateOrderApiInterface"
+            class="Sylius\PayPalPlugin\Api\UpdateOrderApi"
+        >
+            <argument type="service" id="Sylius\PayPalPlugin\Client\PayPalClientInterface" />
+            <argument type="service" id="Sylius\PayPalPlugin\Provider\PaymentReferenceNumberProviderInterface" />
+            <argument type="service" id="Sylius\PayPalPlugin\Provider\PayPalItemDataProviderInterface" />
+        </service>
+
+        <service
+            id="Sylius\PayPalPlugin\Api\RefundPaymentApiInterface"
+            class="Sylius\PayPalPlugin\Api\RefundPaymentApi"
+        >
+            <argument type="service" id="Sylius\PayPalPlugin\Client\PayPalClientInterface" />
+        </service>
+    </services>
+</container>

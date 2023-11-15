@@ -1,0 +1,123 @@
+name: Build
+
+on:
+    push: ~
+    pull_request: ~
+    release:
+        types: [created]
+    schedule:
+        -
+            cron: "0 1 * * 6" # Run at 1am every Saturday
+    workflow_dispatch: ~
+
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        name: "PHP ${{ matrix.php }}${{ matrix.symfony != '' && format(', Symfony {0}', matrix.symfony) || '' }}${{ matrix.currency-bundle != '' && format(', CurrencyBundle {0}', matrix.currency-bundle) || '' }}${{ matrix.postgres != '' && format(', PostgresSQL {0}', matrix.postgres) || '' }}"
+        strategy:
+            fail-fast: false
+            matrix:
+                php: ["8.0", "8.1"]
+                postgres: [""]
+                symfony: ["^5.4", "^6.0"]
+
+                include:
+                    -
+                        php: 8.0
+                        symfony: "^5.4"
+                        postgres: "13.3"
+                    -
+                        php: 8.0
+                        symfony: "^5.4"
+                        postgres: "14.0"
+        steps:
+            -
+                uses: actions/checkout@v2
+            -
+                name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: "${{ matrix.php }}"
+                    coverage: none
+
+            -
+                name: Setup PostgresSQL
+                if: matrix.postgres != ''
+                uses: harmon758/postgresql-action@v1
+                with:
+                    postgresql version: "${{ matrix.postgres }}"
+                    postgresql password: "postgres"
+
+            -
+                name: Restrict Symfony version
+                if: matrix.symfony != ''
+                run: |
+                    composer global config --no-plugins allow-plugins.symfony/flex true
+                    composer global require --no-progress --no-scripts --no-plugins "symfony/flex:^1.10"
+                    composer config extra.symfony.require "${{ matrix.symfony }}"
+                    (cd src/Component && composer config extra.symfony.require "${{ matrix.symfony }}")
+
+            -
+                name: Require sylius/currency-bundle
+                if: matrix.currency-bundle != ''
+                run: |
+                    composer require "sylius/currency-bundle:${{ matrix.currency-bundle }}" --no-update --no-scripts
+
+            -
+                name: Install dependencies
+                run: |
+                    composer update --no-scripts
+                    (cd src/Component && composer update --no-scripts)
+
+            -
+                name: Prepare test application
+                run: |
+                    (cd src/Bundle/test && bin/console doctrine:database:drop --force -n)
+                    (cd src/Bundle/test && bin/console doctrine:database:create)
+                    (cd src/Bundle/test && bin/console doctrine:schema:create)
+
+            -
+                name: Run analysis
+                run: |
+                    composer analyse
+                    (cd src/Component && composer validate --strict)
+
+            -
+                name: Run component tests
+                run: (cd src/Component && vendor/bin/phpspec run)
+
+            -
+                name: Run bundle tests
+                run: composer test
+
+            -
+                name: Run lint container
+                run: (cd src/Bundle/test && bin/console lint:container)
+
+            -
+                name: Run tests for grids with php config
+                if: matrix.symfony == '^5.3'
+                run: |
+                    (cd src/Bundle/test && bin/console cache:clear --env=test_grids_with_php_config)
+                    composer test-php-config
+
+            -
+                name: Run tests with grids as services
+                run: |
+                    (cd src/Bundle/test && bin/console cache:clear --env=test_grids_as_service)
+                    composer test-with-grids-as-service
+
+            -
+                name: Run tests with PostgresSQL
+                if: matrix.postgres != ''
+                run: |
+                    (cd src/Bundle/test && bin/console cache:clear --env=test_with_postgres)
+                    (cd src/Bundle/test && bin/console doctrine:database:create --env=test_with_postgres)
+                    (cd src/Bundle/test && bin/console doctrine:schema:create --env=test_with_postgres)
+                    composer test-with-postgres
+
+            -
+                name: Run lint container without maker bundle
+                run: |
+                    APP_ENV=test_without_maker composer remove --dev symfony/maker-bundle
+                    (cd src/Bundle/test && bin/console lint:container --env=test_without_maker)
